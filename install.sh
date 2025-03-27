@@ -1,168 +1,516 @@
 #!/bin/bash
 
-set -e
-
-########################################################
-#
-#         Pterodactyl-AutoThemes Installation
-#
-#         Created and maintained by Ferks-FK
-#
-#            Protected by MIT License
-#
-########################################################
-
-# Get the latest version before running the script #
-get_release() {
-curl --silent \
-  -H "Accept: application/vnd.github.v3+json" \
-  https://api.github.com/repos/Ferks-FK/Pterodactyl-AutoThemes/releases/latest |
-  grep '"tag_name":' |
-  sed -E 's/.*"([^"]+)".*/\1/'
-}
-
-GITHUB_STATUS_URL="https://www.githubstatus.com"
-SCRIPT_VERSION="$(get_release)"
-
-# Visual Functions #
-print_brake() {
-  for ((n = 0; n < $1; n++)); do
-    echo -n "#"
-  done
-  echo ""
-}
-
-hyperlink() {
-  echo -e "\e]8;;${1}\a${1}\e]8;;\a"
-}
-
-YELLOW="\033[1;33m"
-RESET="\e[0m"
+# Color
+BLUE='\033[0;34m'       
 RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m'
 
-error() {
-  echo ""
-  echo -e "* ${RED}ERROR${RESET}: $1"
-  echo ""
+# Display welcome message
+display_welcome() {
+  echo -e ""
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "${BLUE}[+]                                                 [+]${NC}"
+  echo -e "${BLUE}[+]                AUTO INSTALLER PTERODACTYL             [+]${NC}"
+  echo -e "${BLUE}[+]                  © 𝘏𝘈𝘕𝘊                [+]${NC}"
+  echo -e "${BLUE}[+]                                                 [+]${NC}"
+  echo -e "${RED}[+] =============================================== [+]${NC}"
+  echo -e ""
+  echo -e "script ini di buat untuk mempermudah penginstalasian thema pterodactyl,"
+  echo -e "Dilarang Keras Share Bebas."
+  echo -e ""
+  echo -e "𝗬𝗢𝗨𝗧𝗨𝗕𝗘 :"
+  echo -e "@Hancokk"
+  echo -e "𝗖𝗥𝗘𝗗𝗜𝗧𝗦 :"
+  echo -e "By Vegue"
+  sleep 4
+  clear
 }
 
-# Check Sudo #
-if [[ $EUID -ne 0 ]]; then
-  echo "* This script must be executed with root privileges (sudo)." 1>&2
-  exit 1
-fi
+#Update and install jq
+install_jq() {
+  echo -e "                                                       "
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "${BLUE}[+]             UPDATE & INSTALL JQ                 [+]${NC}"
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "                                                       "
+  sudo apt update && sudo apt install -y jq
+  if [ $? -eq 0 ]; then
+    echo -e "                                                       "
+    echo -e "${GREEN}[+] =============================================== [+]${NC}"
+    echo -e "${GREEN}[+]              INSTALL JQ BERHASIL                [+]${NC}"
+    echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  else
+    echo -e "                                                       "
+    echo -e "${RED}[+] =============================================== [+]${NC}"
+    echo -e "${RED}[+]              INSTALL JQ GAGAL                   [+]${NC}"
+    echo -e "${RED}[+] =============================================== [+]${NC}"
+    exit 1
+  fi
+  echo -e "                                                       "
+  sleep 1
+  clear
+}
+#Check user token
+check_token() {
+  echo -e "                                                       "
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "${BLUE}[+]               LICENSE 𝘏𝘈𝘕𝘊            [+]${NC}"
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "                                                       "
+  echo -e "${YELLOW}MASUKAN AKSES TOKEN :${NC}"
+  read -r USER_TOKEN
 
-# Check Git #
-if [ -z "$SCRIPT_VERSION" ]; then
-  error "Could not get the version of the script using GitHub."
-  echo "* Please check on the site below if the 'API Requests' are as normal status."
-  echo -e "${YELLOW}$(hyperlink "$GITHUB_STATUS_URL")${RESET}"
-  exit 1
-fi
-
-# Check Curl #
-if ! [ -x "$(command -v curl)" ]; then
-  echo "* curl is required in order for this script to work."
-  echo "* install using apt (Debian and derivatives) or yum/dnf (CentOS)"
-  exit 1
-fi
-
-cancel() {
-echo
-echo -e "* ${RED}Installation Canceled!${RESET}"
-done=true
-exit 1
+  if [ "$USER_TOKEN" = "bangsano" ]; then
+    echo -e "${GREEN}AKSES BERHASIL${NC}}"
+  else
+    echo -e "${GREEN}Token Salah! Beli Kode Token Di BANG SANO${NC}"
+    echo -e "${YELLOW}YOUTUBE : @hancokk${NC}"
+    echo -e "${YELLOW}WHATSAPP : +62895364952866${NC}"
+    echo -e "${YELLOW}HARGA TOKEN : 20K FREE UPDATE JIKA ADA TOKEN BARU${NC}"
+    echo -e "${YELLOW}© SANO${NC}"
+    exit 1
+  fi
+  clear
 }
 
-done=false
-
-echo
-print_brake 70
-echo "* Pterodactyl-AutoThemes Script @ $SCRIPT_VERSION"
-echo
-echo "* Copyright (C) 2021 - $(date +%Y), Ferks-FK."
-echo "* https://github.com/Ferks-FK/Pterodactyl-AutoThemes"
-echo
-echo "* This script is not associated with the official Pterodactyl Project."
-print_brake 70
-echo
-
-Backup() {
-bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoThemes/"${SCRIPT_VERSION}"/backup.sh)
-}
-
-Dracula() {
-bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoThemes/"${SCRIPT_VERSION}"/themes/version1.x/Dracula/build.sh)
-}
-
-Enola() {
-bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoThemes/"${SCRIPT_VERSION}"/themes/version1.x/Enola/build.sh)
-}
-
-Twilight() {
-bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoThemes/"${SCRIPT_VERSION}"/themes/version1.x/Twilight/build.sh)
-}
-
-ZingTheme() {
-bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoThemes/"${SCRIPT_VERSION}"/themes/version1.x/ZingTheme/build.sh)
-}
-
-FlancoTheme() {
-bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoThemes/"${SCRIPT_VERSION}"/themes/version1.x/FlancoTheme/build.sh)
-}
-
-BackgroundVideo() {
-bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoThemes/"${SCRIPT_VERSION}"/themes/version1.x/BackgroundVideo/build.sh)
-}
-
-AnimatedGraphics() {
-bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoThemes/"${SCRIPT_VERSION}"/themes/version1.x/AnimatedGraphics/build.sh)
-}
-
-
-while [ "$done" == false ]; do
-  options=(
-    "Restore Panel Backup (Restore your panel if you have problems or want to remove themes)"
-    "Install Dracula (Only 1.7.0 and 1.8.1)"
-    "Install Enola (Only 1.7.0 and 1.8.1)"
-    "Install Twilight (Only 1.7.0 and 1.8.1)"
-    "Install Zing Theme (Only 1.6.6 and 1.7.0)"
-    "Install Flanco Theme (Only 1.6.6 and 1.7.0)"
-    "Install Background Video (Only 1.7.0 and 1.8.1)"
-    "Install Animated Graphics (Only 1.6.6 and 1.7.0)"
-    
-    
-    "Cancel Installation"
-  )
-  
-  actions=(
-    "Backup"
-    "Dracula"
-    "Enola"
-    "Twilight"
-    "ZingTheme"
-    "FlancoTheme"
-    "BackgroundVideo"
-    "AnimatedGraphics"
-    
-    
-    "cancel"
-  )
-  
-  echo "* Which theme do you want to install?"
-  echo
-  
-  for i in "${!options[@]}"; do
-    echo "[$i] ${options[$i]}"
+# Install theme
+install_theme() {
+  while true; do
+    echo -e "                                                       "
+    echo -e "${BLUE}[+] =============================================== [+]${NC}"
+    echo -e "${BLUE}[+]                   SELECT THEME                  [+]${NC}"
+    echo -e "${BLUE}[+] =============================================== [+]${NC}"
+    echo -e "                                                       "
+    echo -e "PILIH THEME YANG INGIN DI INSTALL"
+    echo "1. stellar"
+    echo "2. billing"
+    echo "3. enigma"
+    echo "x. kembali"
+    echo -e "masukan pilihan (1/2/3/x) :"
+    read -r SELECT_THEME
+    case "$SELECT_THEME" in
+      1)
+        THEME_URL=$(echo -e "https://github.com/Bangsano/Pterodactyl-Theme-Autoinstaller/raw/main/stellar.zip")        
+        break
+        ;;
+      2)
+        THEME_URL=$(echo -e "https://github.com/Bangsano/Pterodactyl-Theme-Autoinstaller/raw/main/billing.zip")
+        break
+        ;;
+      3)
+        THEME_URL=$(echo -e "https://github.com/Bangsano/Pterodactyl-Theme-Autoinstaller/raw/main/enigma.zip")
+        break
+        ;; 
+      x)
+        return
+        ;;
+      *)
+        echo -e "${RED}Pilihan tidak valid, silahkan coba lagi.${NC}"
+        ;;
+    esac
   done
   
-  echo
-  echo -n "* Input 0-$((${#actions[@]} - 1)): "
-  read -r action
+if [ -e /root/pterodactyl ]; then
+    sudo rm -rf /root/pterodactyl
+  fi
+  wget -q "$THEME_URL"
+  sudo unzip -o "$(basename "$THEME_URL")"
   
-  [ -z "$action" ] && error "Input is required" && continue
+if [ "$SELECT_THEME" -eq 1 ]; then
+  echo -e "                                                       "
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "${BLUE}[+]                  INSTALLASI THEMA               [+]${NC}"
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "                                                                   "
+  sudo cp -rfT /root/pterodactyl /var/www/pterodactyl
+  curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+  sudo apt install -y nodejs
+  sudo npm i -g yarn
+  cd /var/www/pterodactyl
+  yarn add react-feather
+  php artisan migrate
+  yarn build:production
+  php artisan view:clear
+  sudo rm /root/stellar.zip
+  sudo rm -rf /root/pterodactyl
+
+  echo -e "                                                       "
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e "${GREEN}[+]                   INSTALL SUCCESS               [+]${NC}"
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e ""
+  sleep 2
+  clear
+  exit 0
+
+elif [ "$SELECT_THEME" -eq 2 ]; then
+  echo -e "                                                       "
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "${BLUE}[+]                  INSTALLASI THEMA               [+]${NC}"
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "                                                       "
+  sudo cp -rfT /root/pterodactyl /var/www/pterodactyl
+  curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+  sudo apt install -y nodejs
+  npm i -g yarn
+  cd /var/www/pterodactyl
+  yarn add react-feather
+  php artisan billing:install stable
+  php artisan migrate
+  yarn build:production
+  php artisan view:clear
+  sudo rm /root/billing.zip
+  sudo rm -rf /root/pterodactyl
+
+  echo -e "                                                       "
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e "${GREEN}[+]                  INSTALL SUCCESS                [+]${NC}"
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e "                                                       "
+  sleep 2
+  clear
+  return
+
+elif [ "$SELECT_THEME" -eq 3 ]; then
+  echo -e "                                                       "
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "${BLUE}[+]                  INSTALLASI THEMA               [+]${NC}"
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "                                                                   "
+
+    # Menanyakan informasi kepada pengguna untuk tema Enigma
+    echo -e "${YELLOW}Masukkan link wa (https://wa.me/...) : ${NC}"
+    read LINK_WA
+    echo -e "${YELLOW}Masukkan link group (https://chat.whatsapp.com/.....) : ${NC}"
+    read LINK_GROUP
+    echo -e "${YELLOW}Masukkan link channel (https://whatsapp.com/channel/...) : ${NC}"
+    read LINK_CHNL
+
+    # Mengganti placeholder dengan nilai dari pengguna
+    sudo sed -i "s|LINK_WA|$LINK_WA|g" /root/pterodactyl/resources/scripts/components/dashboard/DashboardContainer.tsx
+    sudo sed -i "s|LINK_GROUP|$LINK_GROUP|g" /root/pterodactyl/resources/scripts/components/dashboard/DashboardContainer.tsx
+    sudo sed -i "s|LINK_CHNL|$LINK_CHNL|g" /root/pterodactyl/resources/scripts/components/dashboard/DashboardContainer.tsx
+    
+
+  sudo cp -rfT /root/pterodactyl /var/www/pterodactyl
+  curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+  sudo apt install -y nodejs
+  sudo npm i -g yarn
+  cd /var/www/pterodactyl
+  yarn add react-feather
+  php artisan migrate
+  yarn build:production
+  php artisan view:clear
+  sudo rm /root/enigma.zip
+  sudo rm -rf /root/pterodactyl
+
+  echo -e"                                                       "
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e "${GREEN}[+]                   INSTALL SUCCESS               [+]${NC}"
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e ""
+  sleep 5
+else
+  echo ""
+  echo "Pilihan tidak valid. silahkan pilih 1/2/3."
+fi
+}
+
+
+# Uninstall theme
+uninstall_theme() {
+  echo -e "                                                       "
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "${BLUE}[+]                    INSTALL PANEL                 [+]${NC}"
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "                                                       "
+  bash <(curl -s https://raw.githubusercontent.com/guldkage/Pterodactyl-Installer/main/installer.sh)
+  echo -e "                                                       "
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e "${GREEN}[+]                 DELETE THEME SUKSES             [+]${NC}"
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e "                                                       "
+  sleep 2
+  clear
+}
+install_themeSteeler() {
+#!/bin/bash
+
+echo -e "                                                       "
+echo -e "${BLUE}[+] =============================================== [+]${NC}"
+echo -e "${BLUE}[+]                  INSTALLASI THEMA               [+]${NC}"
+echo -e "${BLUE}[+] =============================================== [+]${NC}"
+echo -e "                                                                   "
+
+# Unduh file tema
+wget -O /root/stellar.zip https://github.com/Bangsano/Pterodactyl-Theme-Autoinstaller/raw/main/stellar.zip
+
+
+# Ekstrak file tema
+unzip /root/stellar.zip -d /root/pterodactyl
+
+# Salin tema ke direktori Pterodactyl
+sudo cp -rfT /root/pterodactyl /var/www/pterodactyl
+
+# Instal Node.js dan Yarn
+curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+sudo apt install -y nodejs
+sudo npm i -g yarn
+
+# Instal dependensi dan build tema
+cd /var/www/pterodactyl
+yarn add react-feather
+php artisan migrate
+yarn build:production
+php artisan view:clear
+
+# Hapus file dan direktori sementara
+sudo rm /root/stellar.zip
+sudo rm -rf /root/pterodactyl
+
+echo -e "                                                       "
+echo -e "${GREEN}[+] =============================================== [+]${NC}"
+echo -e "${GREEN}[+]                   INSTALL SUCCESS               [+]${NC}"
+echo -e "${GREEN}[+] =============================================== [+]${NC}"
+echo -e ""
+sleep 2
+clear
+exit 0
+
+}
+create_node() {
+  echo -e "                                                       "
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "${BLUE}[+]                    CREATE NODE                     [+]${NC}"
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "                                                       "
+  #!/bin/bash
+#!/bin/bash
+
+# Minta input dari pengguna
+read -p "Masukkan nama lokasi: " location_name
+read -p "Masukkan deskripsi lokasi: " location_description
+read -p "Masukkan domain: " domain
+read -p "Masukkan nama node: " node_name
+read -p "Masukkan RAM (dalam MB): " ram
+read -p "Masukkan jumlah maksimum disk space (dalam MB): " disk_space
+read -p "Masukkan Locid: " locid
+
+# Ubah ke direktori pterodactyl
+cd /var/www/pterodactyl || { echo "Direktori tidak ditemukan"; exit 1; }
+
+# Membuat lokasi baru
+php artisan p:location:make <<EOF
+$location_name
+$location_description
+EOF
+
+# Membuat node baru
+php artisan p:node:make <<EOF
+$node_name
+$location_description
+$locid
+https
+$domain
+yes
+no
+no
+$ram
+$ram
+$disk_space
+$disk_space
+100
+8080
+2022
+/var/lib/pterodactyl/volumes
+EOF
+
+  echo -e "                                                       "
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e "${GREEN}[+]        CREATE NODE & LOCATION SUKSES             [+]${NC}"
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e "                                                       "
+  sleep 2
+  clear
+  exit 0
+}
+uninstall_panel() {
+  echo -e "                                                       "
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "${BLUE}[+]                    INSTALL PANEL                 [+]${NC}"
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "                                                       "
+
+
+bash <(curl -s https://raw.githubusercontent.com/Pretty4672/Menu-Pterodactyl/refs/heads/main/install.sh) <<EOF
+y
+y
+y
+y
+EOF
+
+
+  echo -e "                                                       "
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e "${GREEN}[+]                 UNINSTALL PANEL SUKSES             [+]${NC}"
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e "                                                       "
+  sleep 2
+  clear
+  exit 0
+}
+configure_wings() {
+  echo -e "                                                       "
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "${BLUE}[+]                    CONFIGURE WINGS                 [+]${NC}"
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "                                                       "
+  #!/bin/bash
+
+# Minta input token dari pengguna
+read -p "Masukkan token Configure menjalankan wings: " wings
+
+eval "$wings"
+# Menjalankan perintah systemctl start wings
+sudo systemctl start wings
+
+  echo -e "                                                       "
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e "${GREEN}[+]                 CONFIGURE WINGS SUKSES             [+]${NC}"
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e "                                                       "
+  sleep 2
+  clear
+  exit 0
+}
+hackback_panel() {
+  echo -e "                                                       "
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "${BLUE}[+]                    HACK BACK PANEL                 [+]${NC}"
+  echo -e "${BLUE}[+] =============================================== [+]${NC}"
+  echo -e "                                                       "
+  # Minta input dari pengguna
+read -p "Masukkan Username Panel: " user
+read -p "password login " psswdhb
+  #!/bin/bash
+cd /var/www/pterodactyl || { echo "Direktori tidak ditemukan"; exit 1; }
+
+# Membuat lokasi baru
+php artisan p:user:make <<EOF
+yes
+hackback@gmail.com
+$user
+$user
+$user
+$psswdhb
+EOF
+  echo -e "                                                       "
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e "${GREEN}[+]                 AKUN TELAH DI ADD             [+]${NC}"
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e "                                                       "
+  sleep 2
   
-  valid_input=("$(for ((i = 0; i <= ${#actions[@]} - 1; i += 1)); do echo "${i}"; done)")
-  [[ ! " ${valid_input[*]} " =~ ${action} ]] && error "Invalid option"
-  [[ " ${valid_input[*]} " =~ ${action} ]] && done=true && eval "${actions[$action]}"
+  exit 0
+}
+ubahpw_vps() {
+  echo -e "                                                       "
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e "${GREEN}[+]                    UBAH PASSWORD VPS       [+]${NC}"
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e "                                                       "
+read -p "Masukkan Pw Baru: " pw
+read -p "Masukkan Ulang Pw Baru " pw
+
+passwd <<EOF
+$pw
+$pw
+
+EOF
+
+
+  echo -e "                                                       "
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e "${GREEN}[+]                 GANTI PW VPS SUKSES         [+]${NC}"
+  echo -e "${GREEN}[+] =============================================== [+]${NC}"
+  echo -e "                                                       "
+  sleep 2
+  
+  exit 0
+}
+# Main script
+display_welcome
+install_jq
+check_token
+
+while true; do
+  clear
+  echo -e "                                                                     "
+  echo -e "${RED}        _,gggggggggg.                                     ${NC}"
+  echo -e "${RED}    ,ggggggggggggggggg.                                   ${NC}"
+  echo -e "${RED}  ,ggggg        gggggggg.                                 ${NC}"
+  echo -e "${RED} ,ggg'               'ggg.                                ${NC}"
+  echo -e "${RED}',gg       ,ggg.      'ggg:                               ${NC}"
+  echo -e "${RED}'ggg      ,gg'''  .    ggg       Auto Installer HANCOKK   ${NC}"
+  echo -e "${RED}gggg      gg     ,     ggg      ------------------------  ${NC}"
+  echo -e "${RED}ggg:     gg.     -   ,ggg       • Youtube : @Hancokk      ${NC}"
+  echo -e "${RED} ggg:     ggg._    _,ggg        • Credit  : HanCokk  ${NC}"
+  echo -e "${RED} ggg.    '.'''ggggggp           • Support by SANO  ${NC}"
+  echo -e "${RED}  'ggg    '-.__                                           ${NC}"
+  echo -e "${RED}    ggg                                                   ${NC}"
+  echo -e "${RED}      ggg                                                 ${NC}"
+  echo -e "${RED}        ggg.                                              ${NC}"
+  echo -e "${RED}          ggg.                                            ${NC}"
+  echo -e "${RED}             b.                                           ${NC}"
+  echo -e "                                                                     "
+  echo -e "BERIKUT LIST INSTALL :"
+  echo "1. thema lengkap"
+  echo "2. lnstall theme"
+  echo "3. Uninstall theme"
+  echo "4. Configure Wings"
+  echo "5. Create Node"
+  echo "6. Uninstall Panel"
+  echo "7. Stellar Theme"
+  echo "8.. Hack Back Panel"
+  echo "9. Ubah Pw Vps"
+  echo "x. Exit"
+  echo -e "Masukkan pilihan 1/2/3/4/5/6/7/8/x:"
+  read -r MENU_CHOICE
+  clear
+
+  case "$MENU_CHOICE" in
+    1)
+      thema_lengkap
+      ;;
+    2)
+      install_panel
+      ;;
+      3)
+      configure_wings
+      ;;
+      4)
+      create_node
+      ;;
+      5)
+      uninstall_panel
+      ;;
+      6)
+      install_themeSteeler
+      ;;
+      7)
+      hackback_panel
+      ;;
+      8)
+      ubahpw_vps
+      ;;
+    x)
+      echo "Keluar dari skrip."
+      exit 0
+      ;;
+    *)
+      echo "Pilihan tidak valid, silahkan coba lagi."
+      ;;
+  esac
 done
